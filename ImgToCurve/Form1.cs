@@ -73,8 +73,6 @@ namespace ImgToCurve
             }
 
 
-            int y_tmp = y;  // текущий пиксель
-            int x_tmp = x;
 
             int j = 1;
 
@@ -83,33 +81,35 @@ namespace ImgToCurve
 
             if ((bmp.GetPixel(x, y) != canvas[0]) && (bmp.GetPixel(x, y) != canvas[1]))
             {
-                while (((0 < y_tmp - j) && (y_tmp + j < h)) && (FoundPointDwn || FoundPointUp)) // пока мы не достигли границ picturebox и на предыдущих горизонталях точки были найдены цикл работает
+                points.Add(new Point(x, y));
+                while (((0 < y - j) && (y + j < h)) && (FoundPointDwn || FoundPointUp)) // пока мы не достигли границ picturebox и на предыдущих горизонталях точки были найдены цикл работает
                 {
                     if (FoundPointUp)  // если точки на предыдущей горизонтали не найдены, значит мы достигли верхнего конца кривой
                     {
-                        if (bmp.GetPixel(x_tmp, y_tmp - j) == CurveColor)   // если пиксель "выше" подходящий
+                        if (bmp.GetPixel(x, y - j) == CurveColor)   // если пиксель "выше" подходящий
                         {
-                            points.Add(new Point(x_tmp, y_tmp - j));
+                            points.Add(new Point(x, y - j));
                             FoundPointDwn = true;
                         }
                         else
                         {
                             int i = 1;
                             FoundPointUp = false;
-                            while ((0 < x_tmp - i) && (x_tmp + i < w))  // предотвращение выхода за границы!
+                            while ((0 < x - i) || (x + i < w))  // останавливаемся, когда вышли за обе границы
                             {
-
-                                if (bmp.GetPixel(x_tmp - i, y_tmp - j) == CurveColor)   // влево
+                                if ((0 < x - i) && (bmp.GetPixel(x - i, y - j) == CurveColor))   // влево
                                 {
                                     FoundPointUp = true;
-                                    points.Add(new Point(x_tmp - i, y_tmp - j));
+                                    points.Add(new Point(x - i, y - j));
+                                    x = x - i;
                                     break;
                                 }
 
-                                if (bmp.GetPixel(x_tmp + i, y_tmp - j) == CurveColor)  // вправо
+                                if ((x + i < w) && (bmp.GetPixel(x + i, y - j) == CurveColor)) // вправо
                                 {
                                     FoundPointUp = true;
-                                    points.Add(new Point(x_tmp + i, y_tmp - j));
+                                    points.Add(new Point(x + i, y - j));
+                                    x = x + i;
                                     break;
                                 }
                                 ++i;
@@ -119,29 +119,31 @@ namespace ImgToCurve
 
                     if (FoundPointDwn)  // если точки на предыдущей горизонтали не найдены, значит мы достигли нижнего конца кривой
                     {
-                        if (bmp.GetPixel(x_tmp, y_tmp + j) == CurveColor)   // если пиксель "ниже" подходящий
+                        if (bmp.GetPixel(x, y + j) == CurveColor)   // если пиксель "ниже" подходящий
                         {
-                            points.Add(new Point(x_tmp, y_tmp + j));
+                            points.Add(new Point(x, y + j));
                             FoundPointDwn = true;
                         }
                         else
                         {
                             int i = 1;
                             FoundPointDwn = false;
-                            while ((0 < x_tmp - i) && (x_tmp + i < w))  // предотвращение выхода за границы!
+                            while ((0 < x - i) || (x + i < w))  // останавливаемся, когда вышли за обе границы
                             {
 
-                                if (bmp.GetPixel(x_tmp - i, y_tmp + j) == CurveColor)   // влево
+                                if ((0 < x - i) && (bmp.GetPixel(x - i, y + j) == CurveColor))   // влево
                                 {
                                     FoundPointDwn = true;
-                                    points.Add(new Point(x_tmp - i, y_tmp + j));
+                                    points.Add(new Point(x - i, y + j));
+                                    x = x - i;
                                     break;
                                 }
 
-                                if (bmp.GetPixel(x_tmp + i, y_tmp + j) == CurveColor)  // вправо
+                                if ((x + i < w) && (bmp.GetPixel(x + i, y + j) == CurveColor))  // вправо
                                 {
                                     FoundPointDwn = true;
-                                    points.Add(new Point(x_tmp + i, y_tmp + j));
+                                    points.Add(new Point(x + i, y + j));
+                                    x = x + i;
                                     break;
                                 }
                                 ++i;
