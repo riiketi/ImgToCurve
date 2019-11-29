@@ -8,10 +8,14 @@ namespace ImgToCurve
     public partial class Form1 : Form
     {
         Color[] canvas = new Color[] { Color.FromArgb(255, 255, 255), Color.FromArgb(192, 192, 192) };   // Цвета 
+        SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+
         public Form1()
         {
             InitializeComponent();
             MemoBox_tb.Text = "Выберите файл с рисунком для отображения";
+            
+            saveFileDialog1.Filter = "Text files(*.txt)|*.txt|All files(*.*)|*.*";
         }
 
         Bitmap SourceImage;
@@ -153,6 +157,30 @@ namespace ImgToCurve
                     ++j;
                 }
                 BuildCurve(points);
+                DialogResult result = MessageBox.Show
+                    (
+                        "Сохранить координаты точек кривой в отдельный файл?",
+                        "Сообщение",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Information,
+                        MessageBoxDefaultButton.Button1,
+                        MessageBoxOptions.DefaultDesktopOnly
+                    );
+                if(result == DialogResult.Yes)
+                {
+                    string res = "";
+                    for (int i = 0; i < points.Count; ++i)
+                    {
+                        res = res + (points[i].X + ";" + points[i].Y + "\n");
+                    }
+                    if (saveFileDialog1.ShowDialog() == DialogResult.Cancel)
+                        return;
+                    // получаем выбранный файл
+                    string filename = saveFileDialog1.FileName;
+                    // сохраняем текст в файл
+                    System.IO.File.WriteAllText(filename, res);
+                    MessageBox.Show("Файл сохранен");
+                }
             }
         }
 
